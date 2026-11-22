@@ -1,19 +1,14 @@
-# project_init.py - AI-Media-Video-Studio Initialization
-import os
-import subprocess
+from fastapi import FastAPI, UploadFile, BackgroundTasks
+from pydantic import BaseModel
 
-def init_project():
-    project_path = "AI-Media-Video-Studio"
-    os.makedirs(f"{project_path}/backend", exist_ok=True)
-    os.makedirs(f"{project_path}/frontend", exist_ok=True)
-    
-    # Create .env template
-    with open(f"{project_path}/.env", "w") as f:
-        f.write("OPENAI_API_KEY=\nSTABILITY_AI_KEY=\n")
-    
-    # Git Init for Independent Repo
-    subprocess.run(["git", "init"], cwd=project_path)
-    
-    print(f"Project {project_path} initialized safely.")
+app = FastAPI()
 
-# Autonomous build flow initiated for AI-Media-Video-Studio.
+class VideoRequest(BaseModel):
+    script: str
+    aspect_ratio: str  # "16:9" or "9:16"
+
+@app.post("/generate-video")
+async def generate(request: VideoRequest, background_tasks: BackgroundTasks):
+    # Background task for heavy rendering
+    background_tasks.add_task(process_video_pipeline, request)
+    return {"status": "Processing started", "task_id": "unique_id_123"}
