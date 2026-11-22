@@ -1,14 +1,11 @@
-from fastapi import FastAPI, UploadFile, BackgroundTasks
-from pydantic import BaseModel
+import streamlit as st
+from engine import generate_video
 
-app = FastAPI()
+st.set_page_config(page_title="Studio-V-Pro", layout="wide")
+st.title("Studio-V-Pro: AI Video Engine")
 
-class VideoRequest(BaseModel):
-    script: str
-    aspect_ratio: str  # "16:9" or "9:16"
-
-@app.post("/generate-video")
-async def generate(request: VideoRequest, background_tasks: BackgroundTasks):
-    # Background task for heavy rendering
-    background_tasks.add_task(process_video_pipeline, request)
-    return {"status": "Processing started", "task_id": "unique_id_123"}
+script = st.text_area("Video Script:")
+if st.button("Generate"):
+    with st.spinner("Processing..."):
+        result = generate_video(script)
+        st.success(f"Video ready: {result}")
